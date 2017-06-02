@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.ProjectTypeMapper">
+
+<resultMap type="ProjectType" id="projectTypeResult">
+		<id property="projectTypeId" column="projecttype_id"/>
+		<result property="projectTypeName" column="projecttype_name"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+</resultMap>
+<resultMap type="ProjectTypeVo" id="projectTypeVoResult">
+		<id property="projectTypeId" column="projecttype_id"/>
+		<result property="projectTypeName" column="projecttype_name"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+</resultMap>
+
+<resultMap type="PTForOtherVo" id="pTForOtherVoResult">
+		<id property="projectTypeId" column="projecttype_id"/>
+		<result property="projectTypeName" column="projecttype_name"/>
+</resultMap>
+	
+	
+	<select id="findAllProjectTypeVo" resultMap="projectTypeVoResult">
+		select * from t_projecttype 
+	</select>
+	
+	<select id="findProjectTypeVos" parameterType="ProjectTypeSearcher" resultMap="projectTypeVoResult">
+		select * from t_projecttype
+		<trim prefix="where" prefixOverrides="and | or" suffixOverrides=")">
+			<if test="projectTypeName != null">
+				 projecttype_name like '%${projectTypeName}%'
+			</if>
+			<if test="reserve1 != null">
+				and reserve1 like  '%${reserve1}%'
+			</if>
+			<if test="reserve2 != null">
+				and reserve2 like '%${reserve2}%'
+			</if>
+			<if test="reserve3 != null">
+				and reserve3 like '%${reserve3}%'
+			</if>
+		</trim>
+	</select>
+	
+	<select id="findProjectType" parameterType="int" resultMap="projectTypeResult">
+		select * from t_projecttype where projecttype_id =#{projectTypeId}
+	</select>
+	
+	<select id="findProjectTypeVo" parameterType="int" resultMap="projectTypeVoResult">
+		select * from t_projecttype where projecttype_id =#{projectTypeId}
+	</select>
+	
+	<select id="findPTForOtherVo" parameterType="int" resultMap="pTForOtherVoResult">
+		select * from t_projecttype where projecttype_id =#{projectTypeId}
+	</select>
+	
+
+	
+	<update id="updateProjectType"	parameterType="ProjectType" >
+		update t_projecttype
+		<set>
+			<if test="projectTypeName!=null">
+				projecttype_name = #{projectTypeName},
+			</if>
+			<if test="reserve1 != null">
+				reserve1 = #{reserve1},
+			</if>
+			<if test="reserve2 != null">
+				reserve2 = #{reserve2},
+			</if>
+			<if test="reserve3 != null">
+				reserve3 = #{reserve3}
+			</if>
+		</set>
+		where projecttype_id = #{projectTypeId}
+	</update>
+	
+	<!-- keyProperty="projectTypeId" 这个projectId 需要是ProjectType类的属性 -->
+	<insert id="insertProjectType" parameterType="ProjectType" useGeneratedKeys="true" keyProperty="projectTypeId">
+		insert ignore into t_projecttype(projecttype_name,reserve1,reserve2,reserve3) 
+		values(#{projectTypeName},#{reserve1},#{reserve2},#{reserve3})
+	</insert>
+	
+	<delete id="deleteProjectTypes" parameterType="list">
+		delete from t_projecttype 
+		<where>
+			projecttype_id in
+			<foreach item="projectTypeId" collection="list" open="(" separator="," close=")">
+				#{projectTypeId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteProjectType" parameterType="int">
+		delete from t_projecttype where projecttype_id=#{projectTypeId}
+	</delete>
+
+
+
+
+</mapper>

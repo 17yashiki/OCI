@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.RoleMapper">
+	<resultMap type="Role" id="roleResult">
+		<id property="roleId" column="role_id"/>
+		<result property="roleName" column="name"/>
+		<result property="description" column="description"/>
+		<result property="category" column="category"/>
+	</resultMap>
+	
+	<resultMap type="RoleVo" id="roleVoResult">
+		<id property="roleId" column="role_id"/>
+		<result property="roleName" column="name"/>
+		<result property="description" column="description"/>
+		<result property="category" column="category"/>
+	</resultMap>
+	
+	<resultMap type="RoleForOtherVo" id="roleForOtherVoResult">
+		<id property="roleId" column="role_id"/>
+		<result property="roleName" column="name"/>
+	</resultMap>
+	
+	
+	<select id="findAllRoleVo" resultMap="roleVoResult">
+		select * from t_role 
+	</select>
+	
+	<select id="findAllRoleForOtherVo" resultMap="roleForOtherVoResult">
+		select * from t_role 
+	</select>
+
+	
+		<select id="findRoleVos" parameterType="RoleSearcher" resultMap="roleVoResult">
+		select * from t_role
+		<trim prefix="where" prefixOverrides="and | or" suffixOverrides=")">
+			<if test="roleName != null">
+				and name like '%${roleName}%'
+			</if>
+			<if test="description != null">
+				and description like '%${description}%'
+			</if>
+			<if test="category != null">
+				and category like '%${category}%'
+			</if>
+		</trim>
+	</select>
+	
+	
+	
+	<select id="findRoleVo" parameterType="int" resultMap="roleVoResult">
+		select * from t_role where role_id=#{roleId}
+	</select>
+	
+	<select id="findRole" parameterType="int" resultMap="roleResult">
+		select * from t_role where role_id=#{roleId}
+	</select>
+	
+	<select id="findRoleForOtherVo" parameterType="int" resultMap="roleForOtherVoResult">
+		select * from t_role where role_id=#{roleId}
+	</select>
+	
+	
+	
+	<select id="findRoleForOtherVoByGroupId" parameterType="int" resultMap="roleForOtherVoResult">
+		select * from  t_role r,t_role_group rg where rg.group_id=#{groupId} and rg.role_id=r.role_id;
+	</select>
+
+
+	
+	<update id="updateRole"	parameterType="Role" >
+		update t_role
+		<set>
+			<if test="roleName!=null">
+				name = #{roleName},
+			</if>
+			<if test="description != null">
+				description = #{description},
+			</if>
+			<if test="category != null">
+				category = #{category},
+			</if>
+		</set>
+		where role_id = #{roleId}
+	</update>
+	
+	<!-- keyProperty="roleId" 这个roleId 需要时Role类的属性 -->
+	<insert id="insertRole" parameterType="Role" useGeneratedKeys="true" keyProperty="roleId">
+		insert ignore into t_role(name,description,category) values(#{roleName},#{description},#{category})
+	</insert>
+	
+	<delete id="deleteRoles" parameterType="list">
+		delete  from t_role 
+		<where>
+			role_id in
+			<foreach item="roleId" collection="list" open="(" separator="," close=")">
+				#{roleId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteRole" parameterType="int">
+		delete from t_role where role_id=#{roleId}
+	</delete>
+
+
+
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.ProjectAndTypeMapper">
+
+<resultMap type="ProjectAndType" id="projectAndTypeResult">
+		<id property="projectAndTypeId" column="project_type_id"/>
+		<result property="projectId" column="project_id"/>
+		<result property="projectTypeId" column="projecttype_id"/>
+</resultMap>
+
+<resultMap type="ProjectAndTypeVo" id="projectAndTypeVoResult">
+		<id property="projectAndTypeId" column="project_type_id"/>
+		<association property="project" column="project_id" select="com.oci.mapper.ProjectMapper.findProjectForOtherVo"/>
+		<association property="projectType" column="projecttype_id" select="com.oci.mapper.ProjectTypeMapper.findPTForOtherVo"></association>
+	
+</resultMap>
+
+	
+	
+	<select id="findAllProjectAndTypeVo" resultMap="projectAndTypeVoResult">
+		select * from t_project_type 
+	</select>
+	
+	<select id="findProjectAndTypeVos" parameterType="hashmap" resultMap="projectAndTypeVoResult">
+		select * from t_project_type
+		<where>
+			<if test="projectId != null">
+				 project_id = #{projectId}
+			</if>
+			<if test="projectTypeId != null">
+				and projectTypeId = #{projectTypeId}
+			</if>
+		</where>
+	</select>
+	
+	
+	<select id="findProjectAndType" parameterType="int" resultMap="projectAndTypeResult">
+		select * from t_project_type where projecttype_id = #{projectAndTypeId}
+	</select>
+	
+	<select id="findProjectAndTypeVo" parameterType="int" resultMap="projectAndTypeVoResult">
+		select * from t_project_type where projecttype_id = #{projectAndTypeId}
+	</select>
+	
+	
+
+	
+	<update id="updateProjectAndType"	parameterType="ProjectAndType" >
+		update t_project_type
+		<set>
+			<if test="projectId!=null">
+				project_id = #{projectId},
+			</if>
+			<if test="projectTypeId != null">
+				projecttype_id = #{projectTypeId}
+			</if>
+		</set>
+			where project_type_id = #{projectAndTypeId}
+	</update>
+	
+	<!-- keyProperty="projectAndTypeId" 这个projectId 需要是ProjectAndType类的属性 -->
+	<insert id="insertProjectAndType" parameterType="ProjectAndType" useGeneratedKeys="true" keyProperty="projectAndTypeId">
+		insert ignore into t_project_type(project_id,projecttype_id) 
+		values(#{projectId},#{projectTypeId})
+	</insert>
+	
+	<delete id="deleteProjectAndTypes" parameterType="list">
+		delete  from t_project_type 
+		<where>
+			project_type_id in
+			<foreach item="projectAndTypeId" collection="list" open="(" separator="," close=")">
+				#{projectAndTypeId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteProjectAndType" parameterType="int">
+		delete from t_project_type where project_type_id=#{projectAndTypeId}
+	</delete>
+	
+		<delete id="deleteProjectAndTypesByProjectId" parameterType="list">
+		delete  from t_project_type 
+		<where>
+			project_id in
+			<foreach item="projectId" collection="list" open="(" separator="," close=")">
+				#{projectId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteProjectAndTypeByProjectId" parameterType="int">
+		delete from t_project_type where project_id=#{projectId}
+	</delete>
+	
+			<delete id="deleteProjectAndTypesByProjectTypeId" parameterType="list">
+		delete  from t_project_type 
+		<where>
+			projecttype_id in
+			<foreach item="projectTypeId" collection="list" open="(" separator="," close=")">
+				#{projectTypeId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteProjectAndTypeByProjectTypeId" parameterType="int">
+		delete from t_project_type where projecttype_id=#{projecttypeId}
+	</delete>
+
+
+
+</mapper>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.RodMapper">
+
+<resultMap type="Rod" id="rodResult">
+		<id property="rodId" column="rod_id"/>
+		<result property="rodNo" column="rod_no"/>
+		<result property="intervalId" column="interval_id"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+</resultMap>
+
+
+<resultMap type="RodVo" id="rodVoResult">
+		<id property="rodId" column="rod_id"/>
+		<result property="rodNo" column="rod_no"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+		<association property="interval" column="interval_id" select="com.oci.mapper.IntervalMapper.findIntervalForOtherVo"/>
+</resultMap>
+
+<resultMap type="RodForOtherVo" id="rodForOtherVoResult">
+		<id property="rodId" column="rod_id"/>
+		<result property="rodNo" column="rod_no"/>
+		<association property="interval" column="interval_id" select="com.oci.mapper.IntervalMapper.findIntervalForOtherVo"/>
+</resultMap>
+	
+	
+	<select id="findAllRodVo" resultMap="rodVoResult">
+		select * from t_rod 
+	</select>
+	
+	<select id="findRodVos" parameterType="hashmap" resultMap="rodVoResult">
+		select * from t_rod
+		<where>
+			<if test="rodNo != null">
+				 rod_no like#{rodNo}
+			</if>
+			<if test="intervalId != null">
+				and interval_id =#{intervalId}
+			</if>
+			<if test="reserve1 != null">
+				and reserve1 like#{reserve1}
+			</if>
+			<if test="reserve2 != null">
+				and reserve2 like#{reserve2}
+			</if>
+			<if test="reserve3 != null">
+				and reserve3 like#{reserve3}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findRod" parameterType="int" resultMap="rodResult">
+		select * from t_rod where rod_id =#{rodId}
+	</select>
+	
+	<select id="findRodVo" parameterType="int" resultMap="rodVoResult">
+		select * from t_rod where rod_id =#{rodId}
+	</select>
+	
+	<select id="findRodForOtherVo" parameterType="int" resultMap="rodForOtherVoResult">
+		select * from t_rod where rod_id =#{rodId}
+	</select>
+	
+
+	
+	<update id="updateRod"	parameterType="Rod" >
+		update t_rod
+		<set>
+			<if test="rodNo!=null">
+				rod_no = #{rodNo},
+			</if>
+			<if test="intervalId !=null">
+				interval_id = #{intervalId}
+			</if>
+			
+			<if test="reserve1 != null">
+				reserve1 = #{reserve1}
+			</if>
+			<if test="reserve2 != null">
+				reserve2 = #{reserve2}
+			</if>
+			<if test="reserve3 != null">
+				reserve3 = #{reserve3}
+			</if>
+		</set>
+		where rod_id = #{rodId}
+	</update>
+	
+	<!-- keyProperty="projectTypeId" 这个projectId 需要是ProjectType类的属性 -->
+	<insert id="insertRod" parameterType="Rod" useGeneratedKeys="true" keyProperty="rodId">
+		insert ignore into t_rod(rod_no,interval_id,reserve1,reserve2,reserve3) 
+		values(#{rodNo},#{intervalId},#{reserve1},#{reserve2},#{reserve3})
+	</insert>
+	
+	<delete id="deleteRods" parameterType="list">
+		delete from t_rod 
+		<where>
+			rod_id in
+			<foreach item="rodId" collection="list" open="(" separator="," close=")">
+				#{rodId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteRod" parameterType="int">
+		delete from t_rod where rod_id=#{rodId}
+	</delete>
+	
+	<delete id="deleteRodsByIntervalId" parameterType="int">
+		delete from t_rod where interval_id=#{intervalId}
+	</delete>
+
+
+
+</mapper>

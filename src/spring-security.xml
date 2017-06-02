@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+	<global-method-security  pre-post-annotations="enabled" secured-annotations="enabled"
+        jsr250-annotations="enabled"/>
+
+	<http auto-config="true" use-expressions="true">
+        <intercept-url pattern="/" access="hasRole('ADMIN') or hasRole('MANAGER') or hasRole('TECHNICIAN') or hasRole('INSPECTOR')" />
+     
+        <form-login  authentication-failure-url="/Access_Denied" />
+    </http>
+
+
+	<authentication-manager >
+        <authentication-provider user-service-ref="customUserDetailsService">
+        </authentication-provider>
+    </authentication-manager>
+    <!-- 
+	<beans:bean id="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" /> 
+ 	-->
+ 	
+ 	<beans:bean id="customUserDetailsService" class="com.oci.service.CustomUserDetailsService"></beans:bean>
+
+</beans:beans>

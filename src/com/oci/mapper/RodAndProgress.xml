@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.RodAndProgressMapper">
+
+<resultMap type="RodAndProgress" id="rodAndProgressResult">
+		<id property="rodAndProgressId" column="rod_progress_id"/>
+		<result property="rodId" column="rod_id"/>
+		<result property="progressId" column="progress_id"/>
+		<result property="createDate" column="createdate"/>
+</resultMap>
+<resultMap type="RodAndProgressVo" id="rodAndProgressVoResult">
+		<id property="rodAndProgressId" column="rod_progress_id"/>
+		<result property="createDate" column="createdate"/>
+		<association property="rod" column="rod_id" select="com.oci.mapper.RodMapper.findRodForOtherVo"/>
+		<association property="progress" column="progress_id" select="com.oci.mapper.ProgressMapper.findProgressForOtherVo"/>
+</resultMap>
+
+	
+	
+	<select id="findAllRodAndProgressVo" resultMap="rodAndProgressVoResult">
+		select * from t_rod_progress 
+	</select>
+	
+	<select id="findRodAndProgressVos" parameterType="hashmap" resultMap="rodAndProgressVoResult">
+		select * from t_rod_progress
+		<where>
+			<if test="rodId != null">
+				 rod_id =#{rodId}
+			</if>
+			<if test="progressId !=null">
+				progress_id = #{progressId}
+			</if>
+			<if test="createDate !=null">
+				createdate = #{createDate}
+			</if>
+
+		</where>
+	</select>
+	
+	<select id="findRodAndProgress" parameterType="int" resultMap="rodAndProgressResult">
+		select * from t_rod_progress where rod_progress_id like#{rodAndProgressId}
+	</select>
+	
+	<select id="findRodAndProgressVo" parameterType="int" resultMap="rodAndProgressVoResult">
+		select * from t_rod_progress where rod_progress_id like#{rodAndProgressId}
+	</select>
+	
+
+	
+
+	
+	<update id="updateRodAndProgress"	parameterType="RodAndProgress" >
+		update t_rod_progress
+		<set>
+			<if test="rodId != null">
+				 rod_id =#{rodId}
+			</if>
+			<if test="progressId !=null">
+				progress_id = #{progressId}
+			</if>
+			<if test="createDate !=null">
+				createdate = #{createDate}
+			</if>
+		</set>
+		where rod_progress_id = #{rodAndProgressId}
+	</update>
+	
+	<!-- keyProperty="rodAndProgressId" 这个projectId 需要是RodAndProgress类的属性 -->
+	<insert id="insertRodAndProgress" parameterType="RodAndProgress" useGeneratedKeys="true" keyProperty="rodAndProgressId">
+		insert ignore into t_rod_progress(rod_id,progress_id,createdate) 
+		values(#{rodId},#{progressId},#{createDate})
+	</insert>
+	
+	<delete id="deleteRodAndProgresss" parameterType="list">
+		delete  from t_rod_progress 
+		<where>
+			rod_progress_id in
+			<foreach item="rodAndProgressId" collection="list" open="(" separator="," close=")">
+				#{rodAndProgressId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteRodAndProgress" parameterType="int">
+		delete from t_rod_progress where rod_progress_id=#{rodAndProgressId}
+	</delete>
+
+
+
+
+</mapper>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.UserMapper">
+	<resultMap type="User" id="userResult">
+		<id property="userId" column="user_id"/>
+		<result property="userName" column="user_name"/>
+		<result property="userPassword" column="user_password"/>
+		<result property="userState" column="user_state"/>
+		<result property="userRealname" column="user_realname"/>
+		<result property="userSex" column="user_sex"/>
+		<result property="userPhoto" column="user_photo"/>
+		<result property="userPhone" column="user_phone"/>
+		<result property="userAddress" column="user_address"/>
+		<result property="userDepartment" column="user_department"/>
+		<result property="groupId" column="group_id"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+	</resultMap>
+	
+	<resultMap type="UserVo" id="userVoResult">
+		<id property="userId" column="user_id"/>
+		<result property="userName" column="user_name"/>
+		<result property="userPassword" column="user_password"/>
+		<result property="userState" column="user_state"/>
+		<result property="userRealname" column="user_realname"/>
+		<result property="userSex" column="user_sex"/>
+		<result property="userPhoto" column="user_photo"/>
+		<result property="userPhone" column="user_phone"/>
+		<result property="userAddress" column="user_address"/>
+		<result property="userDepartment" column="user_department"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+		<association property="group" column="group_id" select="com.oci.mapper.GroupMapper.findGroupForOtherVo"/>
+	</resultMap>
+	
+	<resultMap type="UserForOtherVo" id="userForOtherVoResult">
+		<id property="userId" column="user_id"/>
+		<result property="userName" column="user_name"/>
+		<result property="userPassword" column="user_password"/>
+		<result property="userState" column="user_state"/>
+		<association property="group" column="group_id" select="com.oci.mapper.GroupMapper.findGroupForOtherVo"/>
+		<collection property="roles" column="group_id" select="com.oci.mapper.RoleMapper.findRoleForOtherVoByGroupId"></collection>
+	</resultMap>
+	<resultMap type="UserForWordVo" id="userForWordVoResult">
+		<id property="userId" column="user_id"/>
+		<result property="userRealname" column="user_realname"/>
+	</resultMap>
+	
+	<select id="findAllUserVo" resultMap="userVoResult">
+		select * from t_user 
+	</select>
+	
+	<select id="findUserVos" parameterType="hashmap" resultMap="userVoResult">
+		select * from t_user
+		<trim prefix="where" prefixOverrides="and | or" suffixOverrides=")">
+			<if test="userName != null">
+				and user_name =#{userName}
+			</if>
+			<if test="userState != null">
+				and user_state =#{userState}
+			</if>
+		</trim>
+	</select>
+	
+	<select id="findUserVo" parameterType="int" resultMap="userVoResult">
+		select * from t_user where user_id=#{userId}
+	</select>
+	
+	<select id="findUser" parameterType="int" resultMap="userResult">
+		select * from t_user where user_id=#{userId}
+	</select>
+	
+	<select id="findUserForOtherVo" parameterType="int" resultMap="userForOtherVoResult">
+		select * from t_user where user_id=#{userId}
+	</select>
+	
+	<select id="findUserForOtherVoByUserName" parameterType="java.lang.String" resultMap="userForOtherVoResult">
+		select * from t_user where user_name=#{userName}
+	</select>
+	
+	
+	<select id="findUserForWordVo" parameterType="int" resultMap="userForWordVoResult">
+		select * from t_user where user_id=#{userId}
+	</select>
+	
+
+
+
+	
+	<update id="updateUser"	parameterType="User" >
+		update t_user
+		<set>
+			<if test="userPassword !=null">
+				user_password = #{userPassword},
+			</if>
+			<if test=" userRealname!= null">
+				user_realname = #{userRealname}
+			</if>
+			<if test=" userSex!= null">
+				user_sex = #{userSex}
+			</if>
+			<if test=" userPhoto!= null">
+				user_photo = #{userPhoto}
+			</if>
+			<if test=" userPhone != null">
+				user_phone = #{userPhone}
+			</if>
+			<if test=" useAddress != null">
+				user_address = #{userAddress}
+			</if>			
+			<if test=" userDepartment!= null">
+				user_department = #{userDepartment}
+			</if>									
+			<if test=" groupId != null">
+				group_id = #{groupId}
+			</if>
+			<if test=" reserve1 != null">
+				reserve1 = #{reserve1}
+			</if>			
+			<if test=" reserve2 != null">
+				reserve2= #{reserve2}
+			</if>
+			<if test=" reserve3!= null">
+				reserve3 = #{reserve3}
+			</if>				
+		</set>
+		where user_id = #{userId}
+	</update>
+	
+	
+	<update id="updateUserState" parameterType="User" >
+		update t_user
+		<set>
+			<if test="userState !=null">
+				user_state = #{userState},
+			</if>		
+		</set>
+		where user_id = #{userId}
+	</update>
+	
+	
+	
+	<!-- keyProperty="userId" 这个userId 需要时User类的属性 -->
+	<insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+		insert ignore into t_user(user_name,user_password,user_state,user_realname,user_sex,user_photo,user_phone,user_address,user_department,group_id,reserve1,reserve2,reserve3) 
+		values(#{userName},#{userPassword},#{userState},#{userRealName},#{userSex},#{userPhoto},#{userPhone},#{userAddress},#{userDepartment}, #{groupId},#{reserve1},#{reserve2}，#{reserve3})
+	</insert>
+	
+	<delete id="deleteUsers" parameterType="list">
+		delete  from t_user 
+		<where>
+			user_id in
+			<foreach item="userId" collection="list" open="(" separator="," close=")">
+				#{userId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteUser" parameterType="int">
+		delete from t_user where user_id=#{userId}
+	</delete>
+
+
+
+</mapper>
