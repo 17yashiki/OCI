@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.RoleAndGroupMapper">
+
+<resultMap type="RoleAndGroup" id="roleAndGroupResult">
+		<id property="roleGroupId" column="role_group_id"/>
+		<result property="roldId" column="role_id"/>
+		<result property="groupId" column="group_id"/>
+</resultMap>
+
+<resultMap type="RoleAndGroupVo" id="roleAndGroupVoResult">
+		<id property="roleGroupId" column="role_group_id"/>
+		<association property="role" column="role_id" select="com.oci.mapper.RoleMapper.findRoleForOtherVo"></association>
+		<association property="group" column="group_id" select="com.oci.mapper.GroupMapper.findGroupForOtherVo"></association>
+</resultMap>
+
+
+
+
+
+
+	
+	<select id="findAllRoleAndGroupVo" resultMap="roleAndGroupVoResult">
+		select * from t_role_group
+	</select>
+	
+	<select id="findRoleAndGroupVos" parameterType="RoleAndGroupSearcher" resultMap="roleAndGroupVoResult">
+		select rg.role_group_id,rg.role_id,rg.group_id from t_role_group rg,t_role r,t_group g
+		<trim prefix="where" prefixOverrides="and | or" suffixOverrides=")">
+			<if test=" roleName != null">
+				r.name like '%${roleName}%'
+			</if>
+			<if test="groupName != null">
+				and g.name like '%${groupName}%'
+			</if>
+				and r.role_id = rg.role_id and g.group_id = rg.group_id
+		</trim>
+	</select>
+	
+	
+	<select id="findRoleAndGroup" parameterType="int" resultMap="roleAndGroupResult">
+		select * from t_role_group where role_group_id = #{roleGroupId}
+	</select>
+	
+	<select id="findRoleAndGroupVo" parameterType="int" resultMap="roleAndGroupVoResult">
+		select * from t_role_group where role_group_id = #{roleGroupId}
+	</select>
+	
+	
+	
+
+	
+
+	
+	<update id="updateRoleAndGroup"	parameterType="RoleAndGroup" >
+		update t_role_group
+		<set>
+			<if test="roleId != null">
+				role_id = #{roleId},
+			</if>
+			<if test="groupId != null">
+				group_id = #{groupId},
+			</if>
+		</set>
+		where role_group_id = #{roleGroupId}
+	</update>
+	
+	<!-- keyProperty="roleId" 这个roleId 需要时Role类的属性 -->
+	<insert id="insertRoleAndGroup" parameterType="RoleAndGroup" useGeneratedKeys="true" keyProperty="roleGroupId">
+		insert ignore into t_role_group(role_id,group_id) values(#{roleId},#{groupId})
+	</insert>
+	
+	<delete id="deleteRoleAndGroups" parameterType="list">
+		delete from t_role_group
+		<where>
+			role_group_id in
+			<foreach item="roleGroupId" collection="list" open="(" separator="," close=")">
+				#{roleGroupId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteRoleAndGroup" parameterType="int">
+		delete from t_role_group where role_group_id=#{roleGroupId}
+	</delete>
+
+
+
+
+</mapper>

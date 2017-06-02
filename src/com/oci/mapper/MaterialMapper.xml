@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.MaterialMapper">
+
+<resultMap type="Material" id="materialResult">
+		<id property="materialId" column="material_id"/>
+		<result property="materialName" column="material_name"/>
+		<result property="materialMake" column="material_make"/>
+		<result property="materialUnit" column="material_unit"/>
+		<result property="materialTypeId" column="materialtype_id"/>
+		<result property="materialModel" column="material_model"/>	
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+</resultMap>
+<resultMap type="MaterialVo" id="materialVoResult">
+		<id property="materialId" column="material_id"/>
+		<result property="materialName" column="material_name"/>
+		<result property="materialMake" column="material_make"/>
+		<result property="materialUnit" column="material_unit"/>
+		<result property="materialModel" column="material_model"/>	
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+		<association property="materialType" column="materialtype_id" select="com.oci.mapper.MaterialTypeMapper.findMTForOtherVo"/>
+</resultMap>
+
+<resultMap type="MaterialForOtherVo" id="materialForOtherVoResult">
+		<id property="materialId" column="material_id"/>
+		<result property="materialName" column="material_name"/>
+		<association property="materialType" column="materialtype_id" select="com.oci.mapper.MaterialTypeMapper.findMTForOtherVo"/>
+
+</resultMap>
+
+
+
+	<select id="findAllMaterialVo" resultMap="materialVoResult">
+		select * from t_material
+	</select>
+	
+	<select id="findMaterialVos" parameterType="MaterialSearcher" resultMap="materialVoResult">
+		select * from t_material m,t_materialtype mt 
+		<where>
+			<if test="materialName != null">
+				 m.material_name like '%${typeName}%'
+			</if>
+			<if test="materialTypeName != null">
+				and  mt.materialtype_name like '%${materialTypeName}%'
+			</if>
+
+			<if test="reserve1 != null">
+				and m.reserve1 like#{reserve1}
+			</if>
+			<if test="reserve2 != null">
+				and m.reserve2 like#{reserve2}
+			</if>
+			<if test="reserve3 != null">
+				and m.reserve3 like#{reserve3}
+			</if>
+			and m.materialtype_id = mt.materialtype_id
+		</where>
+	</select>
+	
+	<select id="findMaterial" parameterType="int" resultMap="materialResult">
+		select * from t_material where material_id =#{materialId}
+	</select>
+	
+	<select id="findMaterialVo" parameterType="int" resultMap="materialVoResult">
+		select * from t_material where material_id =#{materialId}
+	</select>
+	
+	<select id="findMaterialForOtherVo" parameterType="int" resultMap="materialForOtherVoResult">
+		select * from t_material where material_id =#{materialId}
+	</select>
+
+
+	
+	<update id="updateMaterial"	parameterType="Material" >
+		update t_material
+		<set>
+			<if test="materialName != null">
+				 material_name =#{materialName}
+			</if>
+			<if test="materialMake != null">
+				 material_make =#{materialMake}
+			</if>
+			<if test="materialUnit != null">
+				 material_unit =#{materialUnit}
+			</if>
+			<if test="materialTypeId != null">
+				 materialtype_id =#{materialTypeId}
+			</if>
+			<if test="reserve1 != null">
+				reserve1 = #{reserve1}
+			</if>
+			<if test="reserve2 != null">
+				reserve2 = #{reserve2}
+			</if>
+			<if test="reserve3 != null">
+				reserve3 = #{reserve3}
+			</if>
+		</set>
+			where material_id = #{materialId}
+	</update>
+	
+	<!-- keyProperty="typeId" 这个projectId 需要是MaterialType类的属性 -->
+	<insert id="insertMaterial" parameterType="Material" useGeneratedKeys="true" keyProperty="materialId">
+		insert ignore into t_material(material_name,material_make,material_unit,materialtype_id,material_model,reserve1,reserve2,reserve3) 
+		values(#{materialName},#{materialMake},#{materialUnit},#{materialTypeId},#{materialModel},#{reserve1},#{reserve2},#{reserve3})
+	</insert>
+	
+	<delete id="deleteMaterials" parameterType="list">
+		delete  from t_material
+		<where>
+			material_id in
+			<foreach item="materialId" collection="list" open="(" separator="," close=")">
+				#{materialId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteMaterial" parameterType="int">
+		delete from t_material where material_id=#{materialId}
+	</delete>
+
+
+</mapper>

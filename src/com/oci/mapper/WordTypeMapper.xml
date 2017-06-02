@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.WordTypeMapper">
+
+<resultMap type="WordType" id="wordTypeResult">
+		<id property="wordTypeId" column="wordtype_tid"/>
+		<result property="wordTypeName" column="wordtype_name"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+</resultMap>
+<resultMap type="WordTypeVo" id="WordTypeVoResult">
+		<id property="wordTypeId" column="wordtype_tid"/>
+		<result property="wordTypeName" column="wordtype_name"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+</resultMap>
+
+<resultMap type="WordTypeForOtherVo" id="wTForOtherVoResult">
+		<id property="wordTypeId" column="wordtype_tid"/>
+		<result property="wordTypeName" column="wordtype_name"/>
+</resultMap>
+	
+	
+	<select id="findAllWordTypeVo" resultMap="WordTypeVoResult">
+		select * from t_wordtype 
+	</select>
+	
+	<select id="findWordTypeVos" parameterType="hashmap" resultMap="WordTypeVoResult">
+		select * from t_wordtype
+		<where>
+			<if test="wordTypeName != null">
+				 wordtype_name like#{wordTypeName}
+			</if>
+			<if test="reserve1 != null">
+				and reserve1 like#{reserve1}
+			</if>
+			<if test="reserve2 != null">
+				and reserve2 like#{reserve2}
+			</if>
+			<if test="reserve3 != null">
+				and reserve3 like#{reserve3}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findWordType" parameterType="int" resultMap="wordTypeResult">
+		select * from t_wordtype where wordtype_tid =#{wordTypeId}
+	</select>
+	
+	<select id="findWordTypeVo" parameterType="int" resultMap="WordTypeVoResult">
+		select * from t_wordtype where wordtype_tid =#{wordTypeId}
+	</select>
+	
+	<select id="findWordTypeForOtherVo" parameterType="int" resultMap="wTForOtherVoResult">
+		select * from t_wordtype where wordtype_tid =#{wordTypeId}
+	</select>
+	
+
+	
+	<update id="updateWordType"	parameterType="WordType" >
+		update t_wordtype
+		<set>
+			<if test="wordTypeName!=null">
+				wordtype_name = #{wordTypeName},
+			</if>
+			<if test="reserve1 != null">
+				reserve1 = #{reserve1}
+			</if>
+			<if test="reserve2 != null">
+				reserve2 = #{reserve2}
+			</if>
+			<if test="reserve3 != null">
+				reserve3 = #{reserve3}
+			</if>
+		</set>
+		where wordtype_tid = #{wordTypeId}
+	</update>
+	
+	<!-- keyProperty="typeId" 这个projectId 需要是MaterialType类的属性 -->
+	<insert id="insertWordType" parameterType="WordType" useGeneratedKeys="true" keyProperty="wordTypeId">
+		insert ignore into t_wordtype(wordtype_name,reserve1,reserve2,reserve3) 
+		values(#{wordTypeName},#{reserve1},#{reserve2},#{reserve3})
+	</insert>
+	
+	<delete id="deleteWordTypes" parameterType="list">
+		delete from t_wordtype
+		<where>
+			wordtype_tid in
+			<foreach item="wordTypeId" collection="list" open="(" separator="," close=")">
+				#{wordTypeId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteWordType" parameterType="int">
+		delete from t_wordtype where wordtype_tid = #{wordTypeId}
+	</delete>
+
+
+
+
+</mapper>

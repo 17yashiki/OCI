@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oci.mapper.IntervalMapper">
+
+<resultMap type="Interval" id="intervalResult">
+		<id property="intervalId" column="interval_id"/>
+		<result property="intervalName" column="interval_name"/>
+		<result property="projectId" column="project_id"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+</resultMap>
+<resultMap type="IntervalVo" id="intervalVoResult">
+		<id property="intervalId" column="interval_id"/>
+		<result property="intervalName" column="interval_name"/>
+		<result property="reserve1" column="reserve1"/>
+		<result property="reserve2" column="reserve2"/>
+		<result property="reserve3" column="reserve3"/>
+		<association property="project" column="project_id" select="com.oci.mapper.ProjectMapper.findProjectForOtherVo"/>
+</resultMap>
+
+<resultMap type="IntervalForOtherVo" id="intervalForOtherVoResult">
+		<id property="intervalId" column="interval_id"/>
+		<result property="intervalName" column="interval_name"/>
+		<association property="project" column="project_id" select="com.oci.mapper.ProjectMapper.findProjectForOtherVo"/>
+</resultMap>
+	
+	
+	<select id="findAllIntervalVo" resultMap="intervalVoResult">
+		select * from t_interval 
+	</select>
+	
+	<select id="findIntervalVos" parameterType="hashmap" resultMap="intervalVoResult">
+		select * from t_interval
+		<where>
+			<if test="intervalName != null">
+				 interval_name like#{intervalName}
+			</if>
+			<if test="projectId != null">
+				and project_id =#{projectId}
+			</if>
+			
+			<if test="reserve1 != null">
+				and reserve1 like#{reserve1}
+			</if>
+			<if test="reserve2 != null">
+				and reserve2 like#{reserve2}
+			</if>
+			<if test="reserve3 != null">
+				and reserve3 like#{reserve3}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findInterval" parameterType="int" resultMap="intervalResult">
+		select * from t_interval where interval_id =#{intervalId}
+	</select>
+	
+	<select id="findIntervalVo" parameterType="int" resultMap="intervalVoResult">
+		select * from t_interval where interval_id =#{intervalId}
+	</select>
+	
+	<select id="findIntervalForOtherVo" parameterType="int" resultMap="intervalForOtherVoResult">
+		select * from t_interval where interval_id =#{intervalId}
+	</select>
+	
+
+	
+	<update id="updateInterval"	parameterType="Interval" >
+		update t_interval
+		<set>
+			<if test="intervalName!=null">
+				interval_name like #{intervalName},
+			</if>
+			<if test="projectId != null">
+				project_id = #{projectId}
+			</if>
+			<if test="reserve1 != null">
+				reserve1 = #{reserve1}
+			</if>
+			<if test="reserve2 != null">
+				reserve2 = #{reserve2}
+			</if>
+			<if test="reserve3 != null">
+				reserve3 = #{reserve3}
+			</if>
+		</set>
+		where interval_id = #{intervalId}
+	</update>
+	
+	<!-- keyProperty="projectTypeId" 这个projectId 需要是Interval类的属性 -->
+	<insert id="insertInterval" parameterType="Interval" useGeneratedKeys="true" keyProperty="intervalId">
+		insert ignore into t_interval(interval_name,project_id,reserve1,reserve2,reserve3) 
+		values(#{intervalName},#{projectId},#{reserve1},#{reserve2},#{reserve3})
+	</insert>
+	
+	<delete id="deleteIntervals" parameterType="list">
+		delete from t_interval
+		<where>
+			interval_id in
+			<foreach item="intervalId" collection="list" open="(" separator="," close=")">
+				#{intervalId}
+			</foreach>
+		</where>
+	</delete>
+	
+	<delete id="deleteInterval" parameterType="int">
+		delete from t_interval where interval_id=#{intervalId}
+	</delete>
+
+
+
+
+</mapper>
